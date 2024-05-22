@@ -23,9 +23,7 @@ namespace Magnise.Test.API.Filters.ExceptionResolvers
             var errorResponse = new ErrorResponse
             {
                 Code = 500,
-                ErrorMessage = _env.IsProduction()
-                    ? "Internal server error"
-                    : context.Exception.ToString()
+                ErrorMessage = context.Exception.Message
             };
 
             _logger.LogCritical(context.Exception, $"ErrorId : {id}");

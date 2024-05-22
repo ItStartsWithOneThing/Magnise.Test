@@ -10,6 +10,7 @@ namespace Magnise.Test.BL.MappingProfiles
     {
         public MappingProfile() {
             CreateMap<CryptocurrencyDTO, Cryptocurrency>().ReverseMap();
+            CreateMap<CryptocurrencyFullResponse, Cryptocurrency>().ReverseMap();
 
             CreateMap<CryptocurrencyShortResponse, Cryptocurrency>().ReverseMap();
 
