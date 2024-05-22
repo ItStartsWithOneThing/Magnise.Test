@@ -2,9 +2,11 @@
 using AutoMapper;
 using Magnise.Test.BL.DTO;
 using Magnise.Test.BL.Exceptions;
+using Magnise.Test.DAL;
 using Magnise.Test.DAL.Entities;
 using Magnise.Test.DAL.Repositories.Read;
 using Magnise.Test.DAL.Repositories.Write;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,25 +21,30 @@ namespace Magnise.Test.BL.Services
 {
     public class UpdateCurrenciesBackgroundService : BackgroundService
     {
+        private readonly IMemoryCache _cache;
         private readonly ILogger _logger;
         private readonly IMapper _mapper;
         private readonly ICryptocurrencyReadRepository _readRepo;
         private readonly ICryptocurrencyWriteRepository _writeRepo;
+        private readonly CryptoDBContext _dbContext;
 
         private readonly string _apiKey;
         private readonly string _endpointREST;
         private readonly string _endpointSocket;
 
         public UpdateCurrenciesBackgroundService(
+            IMemoryCache cache,
             ILogger<UpdateCurrenciesBackgroundService> logger,
             IMapper mapper,
             IServiceScopeFactory scopeFactory,
             IConfiguration configuration)
         {
+            _cache = cache;
             _logger = logger;
             _mapper = mapper;
             _readRepo = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<ICryptocurrencyReadRepository>();
             _writeRepo = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<ICryptocurrencyWriteRepository>();
+            _dbContext = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<CryptoDBContext>();
 
             _apiKey = configuration.GetSection("api-key").Value;
             _endpointREST = configuration.GetSection("endpoint-rest").Value;
@@ -48,6 +55,9 @@ namespace Magnise.Test.BL.Services
         {
             _logger.LogInformation($"{nameof(UpdateCurrenciesBackgroundService)} is starting.");
 
+            _dbContext.Database.EnsureDeleted();
+            _dbContext.Database.EnsureCreated();
+
             var dbData = await _readRepo.GetAllCurrenciesAsync();
 
             if( dbData.IsNullOrEmpty() )
@@ -57,6 +67,13 @@ namespace Magnise.Test.BL.Services
                     var initialCurr = await GetInitialCurencies();
 
                     await _writeRepo.InitCurrencies( initialCurr );
+
+                    // Caching currencies ID and AssetID
+                    var dbCurrencies = await _readRepo.GetAllCurrenciesAsync();
+                    foreach (var x in dbCurrencies)
+                    {
+                        _cache.Set(x.AssetID, x.ID);
+                    }
                 }
                 catch (CannotObtainInitialCryptocurrenciesException ex)
                 {
@@ -174,6 +191,8 @@ namespace Magnise.Test.BL.Services
             }
 
             var resultCurrency = _mapper.Map<Cryptocurrency>(currency);
+
+            resultCurrency.ID = (int)_cache.Get(resultCurrency.AssetID);
 
             await _writeRepo.UpdateCurrencyPriceAsync(resultCurrency);
         }

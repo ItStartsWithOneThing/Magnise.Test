@@ -32,10 +32,12 @@ namespace Magnise.Test.DAL.Repositories.Write
 
         public async Task UpdateCurrencyPriceAsync(Cryptocurrency currency)
         {
-            _dbSet.Attach(currency);
-
-            _cryptoDBContext.Entry(currency).Property(c => c.PriceInUSD).IsModified = true;
-            _cryptoDBContext.Entry(currency).Property(c => c.LastUpdate).IsModified = true;
+            await _dbSet
+                .Where(x => x.ID == currency.ID)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.PriceInUSD, x => currency.PriceInUSD)
+                    .SetProperty(x => x.LastUpdate, x => currency.LastUpdate)
+                    );
 
             await Save();
         }

@@ -17,6 +17,8 @@ builder.Services.AddDbContext<CryptoDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("MSSQLConnection"))
 );
 
+builder.Services.AddScoped<ICryptocurrencyService, CryptocurrencyService>();
+
 builder.Services.AddScoped<ICryptocurrencyWriteRepository, CryptocurrencyWriteRepository>();
 builder.Services.AddScoped<ICryptocurrencyReadRepository, CryptocurrencyReadRepository>();
 
@@ -27,6 +29,8 @@ var assemblies = new[]
 builder.Services.AddAutoMapper(assemblies);
 
 builder.Services.AddHostedService<UpdateCurrenciesBackgroundService>();
+
+builder.Services.AddMemoryCache();
 
 builder.Services.AddEndpointsApiExplorer();
 

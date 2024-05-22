@@ -8,8 +8,6 @@ namespace Magnise.Test.DAL
     {
         public CryptoDBContext(DbContextOptions<CryptoDBContext> options) : base(options)
         {
-            Database.EnsureDeleted();
-            Database.EnsureCreated();
         }
 
         public DbSet<Cryptocurrency> Cryptocurrencies { get; set; }
