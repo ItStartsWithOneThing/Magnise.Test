@@ -16,18 +16,33 @@ namespace Magnise.Test.DAL.Repositories.Write
             _dbSet = context.Set<Cryptocurrency>();
         }
 
+        public async Task InitCurrencies(IEnumerable<Cryptocurrency> currencies)
+        {
+            await _dbSet.AddRangeAsync(currencies);
+
+            await Save();
+        }
+
         public async Task AddCurrencyAsync(Cryptocurrency currency)
         {
             await _dbSet.AddAsync(currency);
 
-            await _cryptoDBContext.SaveChangesAsync();
+            await Save();
         }
 
-        public async Task UpdateCurrencyAsync(Cryptocurrency currency)
+        public async Task UpdateCurrencyPriceAsync(Cryptocurrency currency)
         {
-            _cryptoDBContext.Entry(currency).State = EntityState.Modified;
+            _dbSet.Attach(currency);
 
-            await _cryptoDBContext.SaveChangesAsync();
+            _cryptoDBContext.Entry(currency).Property(c => c.PriceInUSD).IsModified = true;
+            _cryptoDBContext.Entry(currency).Property(c => c.LastUpdate).IsModified = true;
+
+            await Save();
+        }
+
+        private async Task<int> Save()
+        {
+            return await _cryptoDBContext.SaveChangesAsync();
         }
     }
 }

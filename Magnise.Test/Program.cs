@@ -1,7 +1,11 @@
+
+using Magnise.Test.BL.MappingProfiles;
+using Magnise.Test.BL.Services;
 using Magnise.Test.DAL;
 using Magnise.Test.DAL.Repositories.Read;
 using Magnise.Test.DAL.Repositories.Write;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +18,14 @@ builder.Services.AddDbContext<CryptoDBContext>(options =>
 
 builder.Services.AddScoped<ICryptocurrencyWriteRepository, CryptocurrencyWriteRepository>();
 builder.Services.AddScoped<ICryptocurrencyReadRepository, CryptocurrencyReadRepository>();
+
+var assemblies = new[]
+{
+    Assembly.GetAssembly(typeof(MappingProfile))
+};
+builder.Services.AddAutoMapper(assemblies);
+
+builder.Services.AddHostedService<UpdateCurrenciesBackgroundService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

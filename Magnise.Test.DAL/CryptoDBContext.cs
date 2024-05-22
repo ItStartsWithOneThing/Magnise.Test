@@ -8,9 +8,11 @@ namespace Magnise.Test.DAL
     {
         public CryptoDBContext(DbContextOptions<CryptoDBContext> options) : base(options)
         {
+            Database.EnsureDeleted();
+            Database.EnsureCreated();
         }
 
-        DbSet<Cryptocurrency> Cryptocurrencies { get; set; }
+        public DbSet<Cryptocurrency> Cryptocurrencies { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -22,7 +24,9 @@ namespace Magnise.Test.DAL
             {
                 entity.HasKey(e => e.ID).IsClustered(true);
 
-                entity.HasIndex(e => e.Name, "IX_Cryptocurrencies_Name")
+                entity.Property(e => e.ID).ValueGeneratedOnAdd(); // Adding IDENTITY constraint
+
+                entity.HasIndex(e => e.AssetID, "IX_Cryptocurrencies_AssetID")
                     .IsUnique();
             });
         }

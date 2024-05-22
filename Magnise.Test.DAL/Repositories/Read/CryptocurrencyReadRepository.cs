@@ -30,5 +30,10 @@ namespace Magnise.Test.DAL.Repositories.Read
         {
             return await _dbSet.FirstOrDefaultAsync(x => x.ID == id);
         }
+
+        public async Task<Cryptocurrency> GetCurrencyByNameAsync(string name)
+        {
+            return await _dbSet.FirstOrDefaultAsync(x => x.Name == name);
+        }
     }
 }
