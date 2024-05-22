@@ -1,6 +1,7 @@
 ﻿
 using AutoMapper;
 using Magnise.Test.BL.DTO;
+using Magnise.Test.BL.DTO.API;
 using Magnise.Test.DAL.Entities;
 
 namespace Magnise.Test.BL.MappingProfiles
@@ -9,6 +10,8 @@ namespace Magnise.Test.BL.MappingProfiles
     {
         public MappingProfile() {
             CreateMap<CryptocurrencyDTO, Cryptocurrency>().ReverseMap();
+
+            CreateMap<CryptocurrencyShortResponse, Cryptocurrency>().ReverseMap();
 
             CreateMap<CryptocurrencyUpdateDTO, Cryptocurrency>()
                 .ForMember(dest => dest.AssetID, opt => opt.MapFrom(src => GetAssetID(src.SymbolID)))
