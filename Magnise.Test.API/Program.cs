@@ -13,8 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<CryptoDBContext>(options => 
-    options.UseSqlServer(builder.Configuration.GetConnectionString("MSSQLConnection"))
+builder.Services.AddDbContext<CryptoDBContext>(options =>
+    //options.UseSqlServer(builder.Configuration.GetConnectionString("MSSQLConnection"))
+    options.UseNpgsql(builder.Configuration.GetConnectionString("NPGSQLConnection"))
 );
 
 builder.Services.AddScoped<ICryptocurrencyService, CryptocurrencyService>();
@@ -44,11 +45,11 @@ builder.Services.AddSwaggerGen(c => {
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Magnise.Test API");
+});
 
 app.UseHttpsRedirection();
 

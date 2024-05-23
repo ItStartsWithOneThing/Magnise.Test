@@ -1,0 +1,43 @@
+version: '3.4'
+services:
+  # mssql-service:
+  #  image: "mcr.microsoft.com/mssql/server:2022-latest"
+  #  container_name: mssql-service-container
+  #  environment:
+  #     SA_PASSWORD: "S3cur3P@ssW0rd!"
+  #     ACCEPT_EULA: "Y"
+  #  ports:
+  #     - "1433:1433"
+  #  networks:
+  #     - app-network
+  
+  postgres-db:
+    image: "postgres:14.5"
+    container_name: postgres-db-container
+    ports:
+      - 5430:5432
+    environment:
+      POSTGRES_PASSWORD: mypass
+      POSTGRES_USER: user
+      POSTGRES_DB: magnise-test-db
+    networks:
+      - app-network
+  
+  magnise-test-service:
+    build:      
+      context: .
+      dockerfile: Dockerfile
+    container_name: magnise-test-service-container
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Release
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - 8081:80
+    depends_on: 
+      - mssql-service
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
