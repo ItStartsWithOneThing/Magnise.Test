@@ -4,8 +4,9 @@ Procedure of running the application (You can use both PostgreSQL and MSSQL)
 Using PostgreSQL:
 1. Connect to your database server via PG admin client or any other.
 2. Open the application.
-3. Simply run the application by tapping Ctrl+F5 or in another way convenient for you.
-4. Browser will open automatically on Swagger page.
+3. Go to application.Development.json, navigate to "NPGSQLCONNECTION" connection string and replase user and password by your credentials.
+4. Simply run the application by tapping Ctrl+F5 or in another way convenient for you.
+5. Browser will open automatically on Swagger page.
 
 Using MSSQL:
 1. Connect to your database server via SQL Server client.
